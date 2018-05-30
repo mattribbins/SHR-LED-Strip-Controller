@@ -37,9 +37,9 @@
 #define LED_RED     11
 #define LED_GREEN   10
 #define LED_BLUE    9 
-#define MIC_INPUT   2
-#define TBU1_INPUT  3
-#define TBU2_INPUT  4
+#define MIC_INPUT   7
+#define TBU1_INPUT  5
+#define TBU2_INPUT  6
 
 #define LOOP_DELAY  20
 #define FADE_SPEED  0.2
@@ -55,7 +55,7 @@
 #define DEBUG_MODE 
 
 // Standard Colours
-#define YELLOW 255,255,0
+#define YELLOW 255,180,0
 #define RED 255,0,0
 #define GREEN 0,255,0
 #define BLUE 0,0,255
@@ -113,9 +113,9 @@ void setup () {
   pinMode(LED_RED, OUTPUT);
   pinMode(LED_GREEN, OUTPUT);
   pinMode(LED_BLUE, OUTPUT);
-  pinMode(MIC_INPUT, INPUT); 
-  pinMode(TBU1_INPUT, INPUT);
-  pinMode(TBU2_INPUT, INPUT);
+  pinMode(MIC_INPUT, INPUT_PULLUP); 
+  pinMode(TBU1_INPUT, INPUT_PULLUP);
+  pinMode(TBU2_INPUT, INPUT_PULLUP);
 
   // Initialise outputs
   for (k=0; k<3; k++) {
@@ -133,10 +133,16 @@ void setup () {
  */
 void loop() {  
   // Check for mic live
-  micLive = digitalRead(MIC_INPUT);
-  tbu1On = digitalRead(TBU1_INPUT);
-  tbu2On = digitalRead(TBU2_INPUT);
+  micLive = !digitalRead(MIC_INPUT);
+
+  // Check TBU with Comrex Mic Light
+  // Uses Pin 14 Hybrid 1 On Indication ** - NC connection.
+  // Pulse when incoming call
+  // High when call connected.
+  tbu1On = !digitalRead(TBU1_INPUT);
+  tbu2On = !digitalRead(TBU2_INPUT);
   tbu2On = LOW;
+  
 
   // Lights logic starts here
 
