@@ -45,6 +45,8 @@
 #define FADE_SPEED  0.2
 #define FLASH_SPEED 20
 #define XFADE_HOLD  0
+#define DEBOUNCE_UP_DELAY 3000
+#define DEBOUNCE_DOWN_DELAY 200
 
 /***
  * No more user editable values.
@@ -88,6 +90,7 @@ bool micLive = LOW;
 bool tbu1On = LOW;
 bool tbu2On = LOW;
 bool statusChange = false;
+int tbu1DebounceTime = 0;
 
 // Debug mode
 #ifdef DEBUG_MODE
@@ -124,6 +127,8 @@ void setup () {
   }
   setLedColour(YELLOW);
 
+  tbu1DebounceTime = millis();
+
   #ifdef DEBUG_MODE
   Serial.begin(9600);
   #endif
@@ -140,10 +145,23 @@ void loop() {
   // Uses Pin 14 Hybrid 1 On Indication ** - NC connection.
   // Pulse when incoming call
   // High when call connected.
-  tbu1On = !digitalRead(TBU1_INPUT);
   tbu2On = !digitalRead(TBU2_INPUT);
   tbu2On = LOW;
   
+  // Debouncer for TBU1 input
+  if(tbu1On != (!digitalRead(TBU1_INPUT))) {
+    if(tbu1On) {
+      if ( (millis() - tbu1DebounceTime) > DEBOUNCE_UP_DELAY) {
+        tbu1On = !digitalRead(TBU1_INPUT);
+        tbu1DebounceTime = millis(); 
+      }
+    } else {
+      if ( (millis() - tbu1DebounceTime) > DEBOUNCE_DOWN_DELAY) {
+        tbu1On = !digitalRead(TBU1_INPUT);
+        tbu1DebounceTime = millis(); 
+      }
+    }
+  }
 
   // Lights logic starts here
 
