@@ -43,10 +43,11 @@
 
 #define LOOP_DELAY  20
 #define FADE_SPEED  0.2
-#define FLASH_SPEED 20
+#define FLASH_SPEED 100
 #define XFADE_HOLD  0
-#define DEBOUNCE_UP_DELAY 3000
-#define DEBOUNCE_DOWN_DELAY 200
+#define DEBOUNCE_UP_DELAY 100
+#define DEBOUNCE_DOWN_DELAY 100
+#define DEBOUNCE_HOLD_THRESHOLD 3000
 
 /***
  * No more user editable values.
@@ -55,7 +56,7 @@
 // Uncomment if debug required. 
 // COM port 9600bps
 #define DEBUG_MODE 
-// #define DEBUG_MODE_EXTENDED
+#define DEBUG_MODE_EXTENDED
 
 // Standard Colours
 #define YELLOW 255,180,0
@@ -169,14 +170,18 @@ void loop() {
   if((tbu1On == HIGH) || (tbu2On == HIGH)) {
     if(micLive == HIGH) {
       // Flash RED to PURPLE
-      setLedColour(PURPLE);
-      changeFlashEndColour(RED);
-      setLedMode(MODE_FLASH);
+      if((millis() - tbu1DebounceTime) > DEBOUNCE_HOLD_THRESHOLD) {
+        setLedColour(RED);
+        setLedMode(MODE_FLASH);
+      } else {
+        setLedColour(PURPLE);
+        setLedMode(MODE_STATIC);
+      }
     } else {
       // Flash YELLOW to PURPLE
       setLedColour(PURPLE);
       changeFlashEndColour(YELLOW);
-      setLedMode(MODE_FLASH);
+      setLedMode(MODE_STATIC);
     }
   } else {
     if(micLive == HIGH) {
@@ -209,7 +214,7 @@ void setLedColour(int red, int green, int blue) {
     newRgb[2] = blue;
     statusChange = true;
     
-    #ifdef DEBUG 
+    #ifdef DEBUG_MODE
     Serial.print("SetLedColour | ");
     Serial.print(rgb[0]);
     Serial.print(" / ");
@@ -224,6 +229,8 @@ void setLedColour(int red, int green, int blue) {
  * Set the LED mode we will change to. Perform any tasks associated.
  */
 void setLedMode(int mode) {
+  if(displayMode == mode) return;
+  
   #ifdef DEBUG
   Serial.print("SetLedMode | ");
   Serial.println(mode); 
@@ -343,7 +350,7 @@ void changeFlashEndColour(int red, int green, int blue) {
     rgb[2] = blue;
     statusChange = true;
     
-    #ifdef DEBUG 
+    #ifdef DEBUG_MODE
     Serial.print("changeFlashStartColour | ");
     Serial.print(rgb[0]);
     Serial.print(" / ");
@@ -403,7 +410,7 @@ void flashLoop() {
 }
 
 void fadeLedColour() {
-  #ifdef DEBUG 
+  #ifdef DEBUG_MODE
     Serial.print("fadeLedColour | ");
     Serial.print(newRgb[0]);
     Serial.print(" / ");
