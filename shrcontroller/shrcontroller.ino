@@ -55,8 +55,8 @@
  
 // Uncomment if debug required. 
 // COM port 9600bps
-#define DEBUG_MODE 
-#define DEBUG_MODE_EXTENDED
+//#define DEBUG_MODE 
+//#define DEBUG_MODE_EXTENDED
 
 // Standard Colours
 #define YELLOW 255,180,0
